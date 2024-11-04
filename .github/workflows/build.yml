@@ -58,10 +58,6 @@ jobs:
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
           echo '🔎 Evidence attached: `signature` :lock_with_ink_pen: ' 
 
-      - name: Upload readme file
-        run: |
-          jf rt upload ./README.md ${{ vars.PROJECT }}-generic-dev/readme/${{ github.run_number }}/ --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}
-
       - name: Publish build info
         run: jfrog rt build-publish ${{ vars.BUILD_NAME }} ${{ github.run_number }}
 
