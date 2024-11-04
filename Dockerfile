@@ -7,7 +7,7 @@ FROM ${REPO_URL}/golang:1.22.6-alpine AS builder
 WORKDIR /app
 
 # Copy the Go modules manifests if they exist
-COPY go.mod go.sum ./
+COPY /go.mod /go.sum ./
 
 # Download the Go modules if the manifests were copied
 RUN if [ -f go.mod ]; then go mod download; fi
