@@ -14,7 +14,7 @@ jobs:
       - name: Install jfrog cli
         uses: jfrog/setup-jfrog-cli@v4
         with:
-          oidc-provider-name: evidence-demo
+          # oidc-provider-name: evidence-demo
           version: 2.71.2
         env:
           JF_URL: ${{ vars.ARTIFACTORY_URL }}
