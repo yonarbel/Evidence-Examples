@@ -92,7 +92,7 @@ jobs:
           echo '📦 Release bundle ['${{ vars.BUNDLE_NAME }}']('${NAME_LINK}'):['${{ github.run_number }}']('${VER_LINK}')buig created' >> $GITHUB_STEP_SUMMARY
 
   Evidence-on-release-bundle:
-    needs: Docker-build
+    needs: Evidence-on-build
     runs-on: ubuntu-latest
     steps:
       - name: Install jfrog cli
