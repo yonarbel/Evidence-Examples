@@ -52,8 +52,8 @@ jobs:
       - name: Evidence on docker
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
-          jf evd create --key "${{ secrets.PRIVATE_KEY }}" \
-            --subject-repo-path ${{ vars.PROJECT }}-docker-dev/${{ vars.PROJECT }}-app/${{ github.run_number }}/list.manifest.json \
+          jf evd create --subject-repo-path ${{ vars.PROJECT }}-docker-dev/${{ vars.PROJECT }}-app/${{ github.run_number }}/list.manifest.json \
+            --key "${{ secrets.PRIVATE_KEY }}" \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
           echo '🔎 Evidence attached: `signature` :lock_with_ink_pen: ' 
 
@@ -82,15 +82,6 @@ jobs:
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/build-signature/v1 \
             --key "${{ secrets.PRIVATE_KEY }}"
           echo '🔎 Evidence attached: `build-signature` :lock_with_ink_pen: ' >> $GITHUB_STEP_SUMMARY
-          
-      # Connect to Sonar service, get scanning results and create evidence with the results 
-      - name: Sonar evidence
-        run: |
-          bash sonar/sonar-scan.sh > sonar-results.json
-          jf evd create --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} \
-            --predicate ./sonar-results.json --predicate-type https://jfrog.com/evidence/sonar-results/v1 \
-            --key "${{ secrets.PRIVATE_KEY }}"
-          echo '🔎 Evidence attached: `sonar-results` 📡 ' >> $GITHUB_STEP_SUMMARY
 
       - name: Create release bundle
         run: |
@@ -99,3 +90,13 @@ jobs:
           NAME_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&repositoryKey=${{ vars.PROJECT }}-release-bundles-v2&activeKanbanTab=promotion'
           VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=${{ vars.PROJECT }}-release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
           echo '📦 Release bundle ['${{ vars.BUNDLE_NAME }}']('${NAME_LINK}'):['${{ github.run_number }}']('${VER_LINK}')buig created' >> $GITHUB_STEP_SUMMARY
+
+      - name: Evidence on release-bundle v2
+        run: |
+          echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > rbv2_evidence.json
+          JF_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
+          echo 'Test on Release bundle ['${{ vars.BUNDLE_NAME }}':'${{ github.run_number }}']('${JF_LINK}') success' >> $GITHUB_STEP_SUMMARY
+          jf evd create --release-bundle ${{ vars.BUNDLE_NAME }} --release-bundle-version ${{ github.run_number }} \
+            --predicate ./rbv2_evidence.json --predicate-type https://jfrog.com/evidence/integration-test/v1 \
+            --key "${{ secrets.PRIVATE_KEY }}" --project ${{ vars.PROJECT }}
+          echo '🔎 Evidence attached: integration-test 🧪 ' >> $GITHUB_STEP_SUMMARY
