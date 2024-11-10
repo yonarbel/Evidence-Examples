@@ -23,7 +23,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ vars.ARTIFACTORY_URL }}
-          username: ${{ secrets.JF_USER }} # ask if not admin
+          username: ${{ secrets.JF_USER }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Set up QEMU
