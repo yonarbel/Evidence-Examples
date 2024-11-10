@@ -50,7 +50,7 @@ jobs:
           jf evd create --package-name example-project-app --package-version 32 --package-repo-name example-project-docker-dev \
             --key "${{ secrets.PRIVATE_KEY }}" \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
-          echo '🔎 Evidence attached: `signature` :lock_with_ink_pen: ' 
+          echo '🔎 Evidence attached: `signature` 🔏 ' 
 
       - name: Publish build info
         run: jfrog rt build-publish ${{ vars.BUILD_NAME }} ${{ github.run_number }}
@@ -61,7 +61,7 @@ jobs:
           jf evd create --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/build-signature/v1 \
             --key "${{ secrets.PRIVATE_KEY }}"
-          echo '🔎 Evidence attached: `build-signature` :lock_with_ink_pen: ' >> $GITHUB_STEP_SUMMARY
+          echo '🔎 Evidence attached: `build-signature` 🔏 ' >> $GITHUB_STEP_SUMMARY
 
       - name: Create release bundle
         run: |
@@ -69,7 +69,7 @@ jobs:
           jf release-bundle-create ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} --signing-key PGP-RSA-2048 --spec bundle-spec.json
           NAME_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&repositoryKey=example-project-release-bundles-v2&activeKanbanTab=promotion'
           VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=example-project-release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
-          echo '📦 Release bundle ['${{ vars.BUNDLE_NAME }}']('${NAME_LINK}'):['${{ github.run_number }}']('${VER_LINK}')buig created' >> $GITHUB_STEP_SUMMARY
+          echo '📦 Release bundle ['${{ vars.BUNDLE_NAME }}']('${NAME_LINK}'):['${{ github.run_number }}']('${VER_LINK}') created' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload readme file
         run: |
@@ -77,19 +77,6 @@ jobs:
           jf evd create --subject-repo-path example-project-generic-dev/readme/${{ github.run_number }}/README.md \
             --key "${{ secrets.PRIVATE_KEY }}" \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1
-
-
-  Evidence-on-release-bundle:
-    needs: Docker-build-with-evidence
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install jfrog cli
-        uses: jfrog/setup-jfrog-cli@v4
-        env:
-          JF_URL: ${{ vars.ARTIFACTORY_URL }}
-          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-
-      - uses: actions/checkout@v4
 
       - name: Evidence on release-bundle v2
         run: |
