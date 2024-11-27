@@ -1,8 +1,7 @@
-name: Build with evidence
+name: Build and deploy with evidence
 
 on:
-  workflow_dispatch
-  # [push, workflow_dispatch]
+  [workflow_dispatch]
 
 permissions:
   id-token: write
@@ -79,7 +78,24 @@ jobs:
           VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=example-project-release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
           echo '📦 Release bundle ['${{ vars.BUNDLE_NAME }}']('${NAME_LINK}'):['${{ github.run_number }}']('${VER_LINK}') created' >> $GITHUB_STEP_SUMMARY
 
-      - name: Evidence on release-bundle v2
+
+  Promote-to-qa-and-test:
+    needs: Docker-build-with-evidence    
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Install jfrog cli
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+
+      - name: Promote to QA
+        run: |
+          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ vars.VERSION }} QA --signing-key PGP-RSA-2048 --project ${{ vars.PROJECT }}
+          echo "🚀 Succesfully promote to `QA` environemnt" >> $GITHUB_STEP_SUMMARY
+
+      - name: Evidence on release-bundle
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > rbv2_evidence.json
           JF_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
