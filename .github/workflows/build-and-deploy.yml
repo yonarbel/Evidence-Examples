@@ -92,7 +92,7 @@ jobs:
 
       - name: Promote to QA
         run: |
-          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ vars.VERSION }} QA --signing-key PGP-RSA-2048 --project ${{ vars.PROJECT }}
+          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} QA --signing-key PGP-RSA-2048 --sync=true
           echo "🚀 Succesfully promote to `QA` environemnt" >> $GITHUB_STEP_SUMMARY
 
       - name: Evidence on release-bundle
