@@ -99,7 +99,7 @@ jobs:
       - name: Promote to QA
         run: |
           jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} QA --signing-key PGP-RSA-2048 --sync=true
-          echo "🚀 Succesfully promote to ` QA ` QA environemnt" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Succesfully promote to \`QA\` environemnt" >> $GITHUB_STEP_SUMMARY
 
       - name: Evidence on release-bundle
         run: |
@@ -144,25 +144,25 @@ jobs:
           echo "RESULT=$result" >> $GITHUB_ENV
           echo "RESULT=$result" >> $GITHUB_STEP_SUMMARY
 
-      # - name: Promote to Production
-      #   run: |
-      #     if [ "${{ env.RESULT }}" == "true" ]; then
-      #       opa eval --input ./evidence_graph.json --data policy/policy.rego "data.greenpizza.output" | jq '.result[0].expressions[0].value' > policy.json
-      #       cat policy.json
-      #       jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias CI-RSA-KEY \
-      #         --release-bundle ${{ vars.BUNDLE_NAME }} --release-bundle-version ${{ vars.VERSION }} --project ${{vars.PROJECT}} \
-      #         --predicate ./policy.json --predicate-type https://jfrog.com/evidence/approval/v1
-      #       jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ vars.VERSION }} PROD --signing-key PGP-RSA-2048 --project ${{ vars.PROJECT }}
-      #       echo "🚀 Succesfully promote to `PROD` environemnt" >> $GITHUB_STEP_SUMMARY
-      #     else
-      #       opa eval --input ./evidence_graph.json --data policy/policy.rego "data.greenpizza.output" | jq '.result[0].expressions[0].value'
-      #       echo "Fail promotion policy check"
-      #       exit 1
-      #     fi
-
-
-      - name: Promote to PROD
+      - name: Promote to Production
         run: |
-          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} PROD --signing-key PGP-RSA-2048 --sync=true
-          echo "🚀 Succesfully promote to ` PROD ` PROD environemnt" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ env.RESULT }}" == "true" ]; then
+            opa eval --input ./evidence_graph.json --data policy/policy.rego "data.greenpizza.output" | jq '.result[0].expressions[0].value' > policy.json
+            cat policy.json
+            jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias CI-RSA-KEY \
+              --release-bundle ${{ vars.BUNDLE_NAME }} --release-bundle-version ${{ vars.VERSION }} --project ${{vars.PROJECT}} \
+              --predicate ./policy.json --predicate-type https://jfrog.com/evidence/approval/v1
+            jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ vars.VERSION }} PROD --signing-key PGP-RSA-2048 --project ${{ vars.PROJECT }} --sync=true
+            echo "🚀 Succesfully promote to \`PROD\` environemnt" >> $GITHUB_STEP_SUMMARY
+          else
+            opa eval --input ./evidence_graph.json --data policy/policy.rego "data.greenpizza.output" | jq '.result[0].expressions[0].value'
+            echo "Fail promotion policy check" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+
+      # - name: Promote to PROD
+      #   run: |
+      #     jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} PROD --signing-key PGP-RSA-2048 --sync=true
+      #       echo "🚀 Succesfully promote to \`PROD\` environemnt" >> $GITHUB_STEP_SUMMARY
           
