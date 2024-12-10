@@ -110,3 +110,21 @@ jobs:
             --predicate ./rbv2_evidence.json --predicate-type https://jfrog.com/evidence/rbv2-signature/v1 \
             --key "${{ secrets.PRIVATE_KEY }}" --key-alias "KEY-ALIAS"
           echo '🔎 Evidence attached: integration-test 🧪 ' >> $GITHUB_STEP_SUMMARY
+
+
+  Policy-check-and-promote-to-prod:
+    needs: Promote-to-qa-and-test    
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Install jfrog cli
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          
+      - name: Promote to PROD
+        run: |
+          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} PROD --signing-key PGP-RSA-2048 --sync=true
+          echo "🚀 Succesfully promote to `QA` environemnt" >> $GITHUB_STEP_SUMMARY
+          
