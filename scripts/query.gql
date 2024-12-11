@@ -1,0 +1,69 @@
+{
+    "query": "{
+          releaseBundleVersion {
+                getVersion(repositoryKey: \"${REPOSITORY_KEY}\", name: \"${NAME}\", version: \"${VERSION}\") {
+                    createdBy
+                    createdAt
+                    evidenceConnection {
+                        edges {
+                            cursor
+                            node {
+                                path
+                                name
+                                predicateSlug
+                            }
+                        }
+                    }
+                    artifactsConnection(first: 13, after:\"YXJ0aWZhY3Q6Mw==\") {
+                        totalCount
+                        pageInfo {
+                            hasNextPage
+                            hasPreviousPage\
+                            startCursor
+                            endCursor
+                        }
+                        edges {
+                            cursor
+                            node {
+                            path
+                            name
+                            packageType
+                            sourceRepositoryPath
+                            evidenceConnection(first: 0) {
+                                totalCount
+                                pageInfo {
+                                    hasNextPage
+                                    hasPreviousPage
+                                    startCursor 
+                                    endCursor
+                                }
+                                edges {
+                                    cursor
+                                    node {
+                                        path
+                                        name
+                                        predicateSlug
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                fromBuilds {
+                    name
+                    number
+                    startedAt
+                    evidenceConnection {
+                        edges {
+                            node {
+                                path
+                                name
+                                predicateSlug
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }"
+}
