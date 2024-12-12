@@ -24,7 +24,9 @@ The following workflow is described:
 Refer to [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) for the complete script.
 
 ***
-**Note**
+
+## Note
+
 For more information about evidence on the JFrog platform, see Evidence Management.
 ***
 
@@ -41,7 +43,7 @@ For more information about evidence on the JFrog platform, see Evidence Manageme
   * JF_USER (your username in Artifactory)  
   * PRIVATE_KEY (the key used to sign evidence)
 
-## 
+
 
 ## Bootstrapping  {#bootstrapping}
 
@@ -49,7 +51,7 @@ For more information about evidence on the JFrog platform, see Evidence Manageme
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) installs the latest version of the JFrog CLI and performs checkout. Please note that a valid access token is required. 
 
-```
+```yaml
 jobs:  
   Docker-build-with-evidence:  
     runs-on: ubuntu-latest  
@@ -67,7 +69,7 @@ jobs:
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) logs into the Docker registry, as described in the [prerequisites](#prerequisites), and sets up QEMU and Docker Buildx in preparation for building the Docker image.
 
-```
+```yaml
  - name: Log in to Artifactory Docker Registry  
    uses: docker/login-action@v3  
    with:  
@@ -89,7 +91,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) builds the Docker image and deploys it to Artifactory.
 
-```
+```yaml
  - name: Build Docker image  
    run: |  
      URL=$(echo ${{ vars.ARTIFACTORY_URL }} | sed 's|^https://||')  
@@ -104,7 +106,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates evidence for the package containing the Docker image. The evidence is signed with your private key, as defined in the [Prerequisites](#prerequisites).
 
-```
+```yaml
 - name: Evidence on docker  
   run: |  
      echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json  
@@ -118,7 +120,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) uploads the README file and creates signed evidence about this generic artifact. The purpose of this section is to demonstrate the ability to create evidence for any type of file uploaded to Artifactory, in addition to packages, builds, and Release Bundles.
 
-```
+```yaml
 - name: Upload readme file  
   run: |  
     jf rt upload ./README.md example-project-generic-dev/readme/${{ github.run\_number }}/ --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}  
@@ -131,7 +133,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates a build from the package containing the Docker image and then creates signed evidence attesting to its creation.
 
-```
+```yaml
   - name: Publish build info  
     run: jfrog rt build-publish ${{ vars.BUILD_NAME }} ${{ github.run_number }}
 
@@ -148,7 +150,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates an immutable Release Bundle v2 from the build containing the Docker image. Having a Release Bundle prevents any changes to the Docker image as it progresses through the various stages of your SDLC towards eventual distribution to your end users.
 
-```
+```yaml
 - name: Create release bundle  
   run: |  
     echo '{ "files": [ {"build": "'"${{ vars.BUILD_NAME }}/${{ github.run_number }}"'" } ] }' > bundle-spec.json  
@@ -157,7 +159,9 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
     VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=example-project-release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'  
     echo ' Release bundle ['${{ vars.BUNDLE_NAME }}']('${NAME_LINK}'):['${{ github.run_number }}']('${VER_LINK}') created' >> $GITHUB_STEP_SUMMARY
 ```
+
 ***
+
 **Note**
 
 For more information about using the JFrog CLI to create a Release Bundle, see [https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-artifactory/release-lifecycle-management](https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-artifactory/release-lifecycle-management).
@@ -167,7 +171,7 @@ For more information about using the JFrog CLI to create a Release Bundle, see [
 
 This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates signed evidence about the Release Bundle. 
 
-```
+```yaml
  - name: Evidence on release-bundle v2  
    run: |  
      echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > rbv2_evidence.json  
