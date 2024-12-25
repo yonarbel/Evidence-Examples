@@ -1,4 +1,4 @@
-package greenpizza
+package evidence-example-policy
 
 # Define the expected predicateSlugs
 expected_predicate_slugs := {"cyclonedx-vex", "testing-results", "promotion"}
