@@ -20,7 +20,7 @@ The following workflow is described:
 5. [Publish Build Info and Attach Build Evidence](#publish-build-info-and-attach-build-evidence)  
 6. [Create a Release Bundle v2 from the Build](#create-a-release-bundle-v2-from-the-build)  
 7. [Attach Release Bundle Evidence](#attach-release-bundle-evidence)
-8. [Create an External Policy to Potentially Block Release Bundle Promotion](#create-external-policy-to-block-rb-promotion)
+8. [Create an External Policy to Potentially Block Release Bundle Promotion](#create-an-external-policy-to-potentially-block-release-bundle-promotion)
 
 Refer to [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) for the complete script.
 
