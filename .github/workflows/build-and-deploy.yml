@@ -140,14 +140,16 @@ jobs:
       - name: Run policy
         id: run_policy
         run: |
-          result=$(opa eval --input ./evidence_graph.json --data policy/policy.rego "data.greenpizza.output" | jq '.result[0].expressions[0].value.approved')
+          OPA_RES=$(opa eval --input ./evidence_graph.json --data policy/policy.rego "data.evidence-example-policy.output")
+          echo "OPA results is $OPA_RES"
+          result=$($OPA_RES | jq '.result[0].expressions[0].value.approved')
           echo "RESULT=$result" >> $GITHUB_ENV
-          echo "Result of policy check is: \`$result\`" >> $GITHUB_STEP_SUMMARY
+          echo "Result of policy check is: $result" >> $GITHUB_STEP_SUMMARY
 
       - name: Promote to Production
         run: |
           if [ "${{ env.RESULT }}" == "true" ]; then
-            opa eval --input ./evidence_graph.json --data policy/policy.rego "data.greenpizza.output" | jq '.result[0].expressions[0].value' > policy.json
+            opa eval --input ./evidence_graph.json --data policy/policy.rego "data.evidence-example-policy.output" | jq '.result[0].expressions[0].value' > policy.json
             cat policy.json
             jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias KEY-ALIAS \
               --release-bundle ${{ vars.BUNDLE_NAME }} --release-bundle-version ${{ github.run_number }} \
@@ -155,7 +157,6 @@ jobs:
             jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} PROD --signing-key PGP-RSA-2048  --sync=true
             echo "🚀 Succesfully promote to \`PROD\` environemnt" >> $GITHUB_STEP_SUMMARY
           else
-            opa eval --input ./evidence_graph.json --data policy/policy.rego "data.greenpizza.output" | jq '.result[0].expressions[0].value'
             echo "Fail promotion policy check" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
