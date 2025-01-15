@@ -21,7 +21,7 @@ The following workflow is described:
 6. [Create a Release Bundle v2 from the Build](#create-a-release-bundle-v2-from-the-build)  
 7. [Attach Release Bundle Evidence](#attach-release-bundle-evidence)
 
-Refer to [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) for the complete script.
+Refer to [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) for the complete script.
 
 ***
 
