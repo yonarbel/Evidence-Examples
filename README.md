@@ -20,6 +20,7 @@ The following workflow is described:
 5. [Publish Build Info and Attach Build Evidence](#publish-build-info-and-attach-build-evidence)  
 6. [Create a Release Bundle v2 from the Build](#create-a-release-bundle-v2-from-the-build)  
 7. [Attach Release Bundle Evidence](#attach-release-bundle-evidence)
+8. [Create an External Policy to Potentially Block Release Bundle Promotion](#create-external-policy-to-block-rb-promotion)
 
 Refer to [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) for the complete script.
 
@@ -49,7 +50,7 @@ For more information about evidence on the JFrog platform, see Evidence Manageme
 
 ### Install JFrog CLI
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) installs the latest version of the JFrog CLI and performs checkout. Please note that a valid access token is required. 
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) installs the latest version of the JFrog CLI and performs checkout. Please note that a valid access token is required. 
 
 ```yaml
 jobs:  
@@ -67,7 +68,7 @@ jobs:
 
 ### Log In to the Artifactory Docker Registry
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) logs into the Docker registry, as described in the [prerequisites](#prerequisites), and sets up QEMU and Docker Buildx in preparation for building the Docker image.
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) logs into the Docker registry, as described in the [prerequisites](#prerequisites), and sets up QEMU and Docker Buildx in preparation for building the Docker image.
 
 ```yaml
  - name: Log in to Artifactory Docker Registry  
@@ -89,7 +90,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 ## Build the Docker Image
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) builds the Docker image and deploys it to Artifactory.
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) builds the Docker image and deploys it to Artifactory.
 
 ```yaml
  - name: Build Docker image  
@@ -104,7 +105,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 ## Attach Package Evidence
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates evidence for the package containing the Docker image. The evidence is signed with your private key, as defined in the [Prerequisites](#prerequisites).
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) creates evidence for the package containing the Docker image. The evidence is signed with your private key, as defined in the [Prerequisites](#prerequisites).
 
 ```yaml
 - name: Evidence on docker  
@@ -118,7 +119,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 ## Upload README File and Associated Evidence
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) uploads the README file and creates signed evidence about this generic artifact. The purpose of this section is to demonstrate the ability to create evidence for any type of file uploaded to Artifactory, in addition to packages, builds, and Release Bundles.
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) uploads the README file and creates signed evidence about this generic artifact. The purpose of this section is to demonstrate the ability to create evidence for any type of file uploaded to Artifactory, in addition to packages, builds, and Release Bundles.
 
 ```yaml
 - name: Upload readme file  
@@ -131,7 +132,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 ## Publish Build Info and Attach Build Evidence
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates a build from the package containing the Docker image and then creates signed evidence attesting to its creation.
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) creates a build from the package containing the Docker image and then creates signed evidence attesting to its creation.
 
 ```yaml
   - name: Publish build info  
@@ -148,7 +149,7 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
 
 ## Create a Release Bundle v2 from the Build
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates an immutable Release Bundle v2 from the build containing the Docker image. Having a Release Bundle prevents any changes to the Docker image as it progresses through the various stages of your SDLC towards eventual distribution to your end users.
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) creates an immutable Release Bundle v2 from the build containing the Docker image. Having a Release Bundle prevents any changes to the Docker image as it progresses through the various stages of your SDLC towards eventual distribution to your end users.
 
 ```yaml
 - name: Create release bundle  
@@ -169,7 +170,7 @@ For more information about using the JFrog CLI to create a Release Bundle, see [
 
 ## Attach Release Bundle Evidence
 
-This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows) creates signed evidence about the Release Bundle. 
+This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) creates signed evidence about the Release Bundle. 
 
 ```yaml
  - name: Evidence on release-bundle v2  
@@ -182,3 +183,10 @@ This section of [build.yaml](https://github.com/jfrog/Evidence-Examples/tree/mai
        --key "${{ secrets.PRIVATE_KEY }}"  
      echo ' Evidence attached: integration-test ' >> $GITHUB_STEP_SUMMARY  
 ```
+
+## Create an External Policy to Potentially Block Release Bundle Promotion
+
+When the Evidence service is used in conjunction with JFrog Xray, each Release Bundle promotion generates evidence in the form of a CycloneDX SBOM. You can create a policy in an external tool (for example, a rego policy) that reviews the contents of the CycloneDX evidence file and decides whether to block the promotion because the Release Bundle fails to meet all your organization's requirements for promotion to the next stage of your SDLC.
+
+To see a sample rego policy, go [here](https://github.com/jfrog/Evidence-Examples/blob/main/policy/policy.rego).
+For more information about integrating Release Lifecycle Management and Evidence with Xray, see [Scan Release Bundles (v2) with Xray](https://jfrog.com/help/r/jfrog-artifactory-documentation/scan-release-bundles-v2-with-xray).
