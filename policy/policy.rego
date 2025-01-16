@@ -1,4 +1,4 @@
-package evidence-example-policy
+package policy
 
 # Define the expected predicateSlugs
 expected_predicate_slugs := {"cyclonedx-vex", "testing-results", "promotion"}
@@ -19,7 +19,7 @@ found := [slug | slug := found_predicate_slugs[_]]
 not_found := [slug | slug := expected_predicate_slugs[_]; not found_predicate_slugs[slug]]
 
 # Check if all expected predicateSlugs are present
-approved {
+approved := true if{
     count({slug | slug := expected_predicate_slugs[_]; slug != ""}) == count(found_predicate_slugs & expected_predicate_slugs)
 }
 
