@@ -5,6 +5,7 @@ BEARER_TOKEN=$2
 REPOSITORY_KEY=$3
 NAME=$4
 VERSION=$5
+OUTPUT_FILE=$6
 
 export REPOSITORY_KEY NAME VERSION
 
@@ -13,4 +14,4 @@ QUERY=$(envsubst < scripts/graphql_query.gql)
 curl -X POST "${BASE_URL}/evidence/api/v1/onemodel/graphql" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ${BEARER_TOKEN}" \
-  -d "$QUERY" -o evidence_graph.json
+  -d "$QUERY" -o ${OUTPUT_FILE}
