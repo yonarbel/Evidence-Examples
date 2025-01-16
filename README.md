@@ -48,6 +48,22 @@ For more information about evidence on the JFrog platform, see Evidence Manageme
 
 ## Bootstrapping
 
+# Repository Variables and Secrets
+
+The following variables and secrets are required to configure and use this repository:
+
+| **Name**                | **Type**  | **Description**                                                                            | **Example**                  |
+|-------------------------|-----------|--------------------------------------------------------------------------------------------|------------------------------|
+| `PRIVATE_KEY`           | Secret    | The private key used to sign artifacts.                                                   | *(Your private key)*         |
+| `ARTIFACTORY_URL`       | Variable  | URL of the Artifactory instance without the protocol.                                      | `myinstance.jfrog.io`        |
+| `BUILD_NAME`            | Variable  | The name of the build.                                                                     | `simple-build`               |
+| `BUNDLE_NAME`           | Variable  | The name of the release bundle.                                                           | `green-pizza-bundle`         |
+| `DEV_DOCKER_REPO_KEY`   | Variable  | The key of the development Docker repository.                                              | `dev-docker-local`           |
+| `IMAGE_NAME`            | Variable  | The name of the Docker image.                                                             | `green-pizza`                |
+| `PROD_DOCKER_REPO_KEY`  | Variable  | The key of the production Docker repository.                                              | `prod-docker-local`          |
+| `QA_DOCKER_REPO_KEY`    | Variable  | The key of the QA Docker repository.                                                      | `qa-docker-local`            |
+
+
 ### Install JFrog CLI
 
 This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main/.github/workflows/build.yml) installs the latest version of the JFrog CLI and performs checkout. Please note that a valid access token is required. 
@@ -186,7 +202,7 @@ This section of [build.yml](https://github.com/jfrog/Evidence-Examples/tree/main
 
 ## Create an External Policy to Potentially Block Release Bundle Promotion
 
-When the Evidence service is used in conjunction with JFrog Xray, each Release Bundle promotion generates evidence in the form of a CycloneDX SBOM. You can create a policy in an external tool (for example, a rego policy) that reviews the contents of the CycloneDX evidence file and decides whether to block the promotion because the Release Bundle fails to meet all your organization's requirements for promotion to the next stage of your SDLC.
+When the Evidence service is used in conjunction with JFrog Xray, each Release Bundle promotion generates evidence in the form of a CycloneDX SBOM. You can create a policy in an external tool (for example, a rego policy) that reviews the contents of the CycloneDX evidence file and decides whether to block the promotion (because the Release Bundle fails to meet all your organization's requirements for promotion to the next stage of your SDLC).
 
 To see a sample rego policy, go [here](https://github.com/jfrog/Evidence-Examples/blob/main/policy/policy.rego).
 For more information about integrating Release Lifecycle Management and Evidence with Xray, see [Scan Release Bundles (v2) with Xray](https://jfrog.com/help/r/jfrog-artifactory-documentation/scan-release-bundles-v2-with-xray).

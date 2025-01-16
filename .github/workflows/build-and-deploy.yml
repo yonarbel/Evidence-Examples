@@ -140,14 +140,9 @@ jobs:
       - name: Run policy
         id: run_policy
         run: |
-          echo "Evidence Graph:"
-          cat ./evidence-graph.json
-          opa eval --input ./evidence-graph.json --data ./policy/policy.rego "data.evidence-example-policy.output" > policy.json
-          cat ./policy.json
-          cat ./policy.json >> $GITHUB_STEP_SUMMARY
-          result=$(jq '.result[0].expressions[0].value.approved' ./policy.json)
+          opa eval --input ./evidence-graph.json --data ./policy/policy.rego "data.policy.output" | jq '.result[0].expressions[0].value'  > policy.json
+          result=$(jq .approved ./policy.json)
           echo "RESULT=$result" >> $GITHUB_ENV
-          echo "Result of policy check is: $result" >> $GITHUB_STEP_SUMMARY
 
       - name: Promote to Production
         run: |
