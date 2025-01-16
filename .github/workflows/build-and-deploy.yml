@@ -140,17 +140,16 @@ jobs:
       - name: Run policy
         id: run_policy
         run: |
-          OPA_RES=$(opa eval --input ./evidence_graph.json --data policy/policy.rego "data.evidence-example-policy.output")
-          echo "OPA results is $OPA_RES"
-          result=$($OPA_RES | jq '.result[0].expressions[0].value.approved')
+          opa eval --input ./evidence_graph.json --data policy/policy.rego "data.evidence-example-policy.output" > policy.json
+          cat ./policy.json
+          cat ./policy.json >> $GITHUB_STEP_SUMMARY
+          result=$(jq '.result[0].expressions[0].value.approved' ./policy.json)
           echo "RESULT=$result" >> $GITHUB_ENV
           echo "Result of policy check is: $result" >> $GITHUB_STEP_SUMMARY
 
       - name: Promote to Production
         run: |
           if [ "${{ env.RESULT }}" == "true" ]; then
-            opa eval --input ./evidence_graph.json --data policy/policy.rego "data.evidence-example-policy.output" | jq '.result[0].expressions[0].value' > policy.json
-            cat policy.json
             jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias KEY-ALIAS \
               --release-bundle ${{ vars.BUNDLE_NAME }} --release-bundle-version ${{ github.run_number }} \
               --predicate ./policy.json --predicate-type https://jfrog.com/evidence/approval/v1
