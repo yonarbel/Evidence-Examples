@@ -135,12 +135,14 @@ jobs:
       - name: Call GraphQL
         run: |
           ./scripts/graphql.sh ${{ vars.ARTIFACTORY_URL }} ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }} release-bundles-v2 ${{ vars.BUNDLE_NAME }} ${{ github.run_number }}
-          cat evidence_graph.json
+          cat ./evidence_graph.json
 
       - name: Run policy
         id: run_policy
         run: |
-          opa eval --input ./evidence_graph.json --data policy/policy.rego "data.evidence-example-policy.output" > policy.json
+          cat ./policy/policy.rego
+          cat ./evidence_graph.json
+          opa eval --input ./evidence_graph.json --data ./policy/policy.rego "data.evidence-example-policy.output" > policy.json
           cat ./policy.json
           cat ./policy.json >> $GITHUB_STEP_SUMMARY
           result=$(jq '.result[0].expressions[0].value.approved' ./policy.json)
