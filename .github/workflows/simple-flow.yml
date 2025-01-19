@@ -14,21 +14,37 @@ jobs:
       - name: Install jfrog cli
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_URL: https://devreleplus.jfrog.io  # ${{ vars.ARTIFACTORY_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           JFROG_CLI_BUILD_NAME: "simple-build"
           JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
+        with:
+         oidc-provider-name: jfrog-github-oidc
 
       - uses: actions/checkout@v4
 
       - name: Log in to Artifactory Docker Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.ARTIFACTORY_URL }}
-          username: ${{ secrets.JF_USER }}
-          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          registry: devreleplus.jfrog.io  # ${{ vars.ARTIFACTORY_URL }}
+          username: ${{ steps.setup-cli.outputs.oidc-user }}
+          password: ${{ steps.setup-cli.outputs.oidc-token }}
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
+      - name: Build the Docker image
+        uses: docker/build-push-action@v6
+        id: build-docker
+        with:
+         push: true
+         context: .
+         platforms: linux/amd64
+         tags: ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+         provenance: false
+        
       - name: Build Docker image
+        if: ${{ false }}
         run: |
           URL=$(echo ${{ vars.ARTIFACTORY_URL }} | sed 's|^https://||')
           REPO_URL=${URL}'/example-project-docker-dev-virtual'
@@ -38,5 +54,6 @@ jobs:
           jf rt build-docker-create example-project-docker-dev --image-file build-metadata --build-name ${JFROG_CLI_BUILD_NAME} --build-number ${JFROG_CLI_BUILD_NUMBER}
 
       - name: Publish build info
+        if: ${{ false }}
         run: jfrog rt build-publish 
 
