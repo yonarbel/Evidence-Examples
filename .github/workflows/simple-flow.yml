@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install jfrog cli
+        id:   setup-cli
         uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_URL: https://devreleplus.jfrog.io  # ${{ vars.ARTIFACTORY_URL }}
