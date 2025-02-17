@@ -12,6 +12,10 @@ permissions:
 jobs:
   docker-build-with-evidence:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILD_SUMMARY: false
+      DOCKER_BUILD_RECORD_UPLOAD: false
+      
     steps:
       - name: Install jfrog cli
         id:   setup-cli
