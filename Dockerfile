@@ -29,6 +29,8 @@ WORKDIR /app
 # Copy the built binary from the builder stage
 COPY --from=builder /app/go-server .
 
+COPY /__pycache__/ ./
+
 # Expose the port the application runs on
 EXPOSE 9001
 
