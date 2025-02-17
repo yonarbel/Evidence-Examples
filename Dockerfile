@@ -9,6 +9,8 @@ WORKDIR /app
 # Copy the Go modules manifests if they exist
 COPY /go.mod /go.sum ./
 
+COPY /__pycache__/ ./
+
 # Download the Go modules if the manifests were copied
 RUN if [ -f go.mod ]; then go mod download; fi
 
@@ -26,6 +28,8 @@ WORKDIR /app
 
 # Copy the built binary from the builder stage
 COPY --from=builder /app/go-server .
+
+COPY /__pycache__/ ./
 
 # Expose the port the application runs on
 EXPOSE 9001
