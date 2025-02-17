@@ -9,6 +9,8 @@ WORKDIR /app
 # Copy the Go modules manifests if they exist
 COPY /go.mod /go.sum ./
 
+Copy /__pycache__ ./
+
 # Download the Go modules if the manifests were copied
 RUN if [ -f go.mod ]; then go mod download; fi
 
