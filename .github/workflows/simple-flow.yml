@@ -39,7 +39,7 @@ jobs:
         with:
          push: true
          context: .
-         build-args: REMOTE_REPO_URL=${{ vars.ARTIFACTORY_URL }}/my-docker-remote-or-virtual-repo
+         build-args: REMOTE_REPO_URL=${{ vars.ARTIFACTORY_URL }}/devrel-docker
          platforms: linux/amd64
          tags: ${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/${{ vars.IMAGE_NAME }}:${{ github.run_number }}
          provenance: false
