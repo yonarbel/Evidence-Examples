@@ -23,6 +23,7 @@ jobs:
         uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_URL: https://${{ vars.ARTIFACTORY_URL }}
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }} #comment out if you want security to be published
         with:
          oidc-provider-name: jfrog-github-oidc
 
